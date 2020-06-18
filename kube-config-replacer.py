@@ -53,20 +53,37 @@ def replace_context(replaced_config, new_config, name):
 
 def replace_user(replaced_config, new_config, name):
     user_idx = find_obj('users', replaced_config, USER_NAME_FORMAT.format(name))
-    client_certificate = new_config['users'][0]['user']['client-certificate-data']
-    client_key = new_config['users'][0]['user']['client-key-data']
 
-    if user_idx < 0:
-        replaced_config['users'].append({
-            'name': USER_NAME_FORMAT.format(name),
-            'user': {
-                'client-certificate-data': client_certificate,
-                'client-key-data': client_key
-            }
-        })
+    if new_config['users'][0]['user'].get('client-certificate-data', '') != '':
+        client_certificate = new_config['users'][0]['user']['client-certificate-data']
+        client_key = new_config['users'][0]['user']['client-key-data']
+
+        if user_idx < 0:
+            replaced_config['users'].append({
+                'name': USER_NAME_FORMAT.format(name),
+                'user': {
+                    'client-certificate-data': client_certificate,
+                    'client-key-data': client_key
+                }
+            })
+        else:
+            replaced_config['users'][user_idx]['user']['client-certificate-data'] = client_certificate
+            replaced_config['users'][user_idx]['user']['client-key-data'] = client_key
     else:
-        replaced_config['users'][user_idx]['user']['client-certificate-data'] = client_certificate
-        replaced_config['users'][user_idx]['user']['client-key-data'] = client_key
+        username = new_config['users'][0]['user']['username']
+        password = new_config['users'][0]['user']['password']
+
+        if user_idx < 0:
+            replaced_config['users'].append({
+                'name': USER_NAME_FORMAT.format(name),
+                'user': {
+                    'username': username,
+                    'password': password
+                }
+            })
+        else:
+            replaced_config['users'][user_idx]['user']['username'] = username
+            replaced_config['users'][user_idx]['user']['password'] = password
 
     return replaced_config
 
