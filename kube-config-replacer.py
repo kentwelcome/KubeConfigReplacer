@@ -70,20 +70,32 @@ def replace_user(replaced_config, new_config, name):
             replaced_config['users'][user_idx]['user']['client-certificate-data'] = client_certificate
             replaced_config['users'][user_idx]['user']['client-key-data'] = client_key
     else:
-        username = new_config['users'][0]['user']['username']
-        password = new_config['users'][0]['user']['password']
+        username = new_config['users'][0]['user'].get('username')
+        password = new_config['users'][0]['user'].get('password')
+        token    = new_config['users'][0]['user'].get('token')
 
-        if user_idx < 0:
-            replaced_config['users'].append({
-                'name': USER_NAME_FORMAT.format(name),
-                'user': {
-                    'username': username,
-                    'password': password
-                }
-            })
+        if token:
+            if user_idx < 0:
+                replaced_config['users'].append({
+                    'name': USER_NAME_FORMAT.format(name),
+                    'user': {
+                        'token': token
+                        }
+                    })
+            else:
+                replaced_config['users'][user_idx]['user']['token'] = token
         else:
-            replaced_config['users'][user_idx]['user']['username'] = username
-            replaced_config['users'][user_idx]['user']['password'] = password
+            if user_idx < 0:
+                replaced_config['users'].append({
+                    'name': USER_NAME_FORMAT.format(name),
+                    'user': {
+                        'username': username,
+                        'password': password
+                    }
+                })
+            else:
+                replaced_config['users'][user_idx]['user']['username'] = username
+                replaced_config['users'][user_idx]['user']['password'] = password
 
     return replaced_config
 
